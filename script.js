@@ -24,76 +24,87 @@
  *        - The number is zero or negative number:
  *          will show this message : Please insert positive numbers!
  *
+ * Third: Set the game behavior is sucess situation and failure situation:
+ *        Sucess  --> The hightscore will be equal to the score and
+ *                    the highscore will change if the player got heigher score.
+ *        Failure --> The player will loseing the game in this situation:
+ *                    - Score number is 0: the player lose all of the tries.
  *
+ * Last: Set the again button to make player able to start new game
  */
 
 // variables
 let number = document.querySelector(".number");
 let score = document.querySelector(".score");
 let heighscore = document.querySelector(".highscore");
-score.textContent = 20;
 let guess = document.querySelector(".guess");
-let check = document.querySelector(".check");
+const check = document.querySelector(".check");
 let message = document.querySelector(".message");
-
+const again = document.querySelector(".again");
 // First: Need to generate random number in range between 1 and 20.
-
-// This variable responsable for display the number
+let secretNumber = Math.trunc(Math.random() * 20 + 1);
 // No need for this after complete the game just for test
-number.textContent = Math.trunc(Math.random() * 20 + 1);
-
-/**
- * This loops to test if all the randown numbers are falied this
- * test just for understanding (I test just 10 numbers)
- */
-
-// let arr = [];
-
-// for (let index = 0; arr.length < 10; index++) {
-//   let number = Math.trunc(Math.random() * 10 + 1);
-//   if (!arr.includes(number)) {
-//     arr.push(number);
-//   }
-// }
-// console.log(arr);
-// let arrayy = [];
-
-// let index = 0;
-// while (arrayy.length < 10) {
-//   let number = Math.trunc(Math.random() * 10 + 1);
-//   let check = arrayy.includes(number);
-//   console.log(check);
-//   if (check !== true) {
-//     arrayy.push(number);
-//   }
-//   index++;
-// }
-// console.log(arrayy);
-
+// number.textContent = secretNumber;
+// give the score initial number and this number represent number of tries for player to guess the number
+let initialScore = Number(score.textContent);
 // Second: Need to fetch the user input number and check this number
 check.addEventListener("click", function () {
-  // check the number is not zero
-  if (guess.value > 0) {
+  if (initialScore > 0 && guess.value > 0) {
     // check the number if is it in range between 1 and 20
-    if (guess.value <= 20) {
-      // success situation guess the correct number
-      if (guess.value === number.textContent) {
+    if (Number(guess.value) <= 20) {
+      if (Number(guess.value) === secretNumber) {
+        // success situation guess the correct number
         message.textContent = "🎉 Correct Number!";
-        // failure in guess the correct number but the number is in range between 1 and 20
-      } else if (guess.value != number.textContent) {
-        // if the guess is heigher will print hight number and if it is low will print low number
-        message.textContent =
-          guess.value < number.textContent ? "low number 📈" : "high number 📉";
+
+        heighscore.textContent =
+          score.textContent > heighscore.textContent
+            ? score.textContent
+            : heighscore.textContent;
+        document.body.style.backgroundColor = "#60b347";
+        // This to end the game in which the player can't input more numbers if he guess the correct number
+        guess.setAttribute("readonly", "readonly");
       }
-      // if the number out of range, grater than 20
+      // failure in guess the correct number but the number is in range between 1 and 20
+      else {
+        message.textContent =
+          Number(guess.value) > Number(secretNumber)
+            ? "high number 📈"
+            : "low number 📉";
+        initialScore--;
+        score.textContent = initialScore;
+      }
     } else {
+      // if the number out of range, grater than 20
       message.textContent = "⛔️ Please insert number in range 1 to 20!";
+      initialScore--;
+      score.textContent = initialScore;
     }
-    // If no input or the input is zero or negative values
+  } else if (initialScore == 0) {
+    message.textContent = "💥 You lost the game!";
+    document.body.style.backgroundColor = "red";
+    guess.setAttribute("readonly", "readonly");
   } else {
+    // If no input or the input is zero or negative values
     message.textContent =
       guess.value == 0
         ? "⛔️ No number!"
         : "⛔️ Please insert positive numbers!";
+    initialScore--;
+    score.textContent = initialScore;
   }
+});
+
+again.addEventListener("click", function () {
+  // generate new secrete key
+  secretNumber = Math.trunc(Math.random() * 20 + 1);
+  // number.textContent = secretNumber;
+  // Set initial score to 20 again
+  initialScore = 20;
+  score.textContent = initialScore;
+  // remove readonly attribute to able player start new game
+  guess.value = "";
+  guess.removeAttribute("readonly", "readonly");
+  message.textContent = "Start guessing ...";
+  // return the background color to initial color
+  document.body.style.backgroundColor = "#222";
 });
